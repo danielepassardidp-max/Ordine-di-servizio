@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+    height: 100%;
+    background-color: #020617;
+}
+
+body {
+    margin: 0;
+    font-family: "Onest", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    color: rgb(226 232 240);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings:
+        "cv11",
+        "ss01",
+        "ss03";
+}
+
+code,
+.font-mono {
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #334155;
+}
+
+/* Selection color */
+::selection {
+    background: rgba(217, 70, 239, 0.35);
+    color: white;
+}
+
+@layer base {
+    :root {
+        --background: 222 47% 4%;
+        --foreground: 210 40% 98%;
+        --card: 222 47% 6%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222 47% 6%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 189 94% 55%;
+        --primary-foreground: 222 47% 4%;
+        --secondary: 217 32% 12%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217 32% 12%;
+        --muted-foreground: 215 20% 65%;
+        --accent: 292 84% 61%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 62% 50%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217 32% 15%;
+        --input: 217 32% 15%;
+        --ring: 189 94% 55%;
+        --radius: 0.6rem;
+    }
+    .dark {
+        --background: 222 47% 4%;
+        --foreground: 210 40% 98%;
+        --card: 222 47% 6%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222 47% 6%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 189 94% 55%;
+        --primary-foreground: 222 47% 4%;
+        --secondary: 217 32% 12%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217 32% 12%;
+        --muted-foreground: 215 20% 65%;
+        --accent: 292 84% 61%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 62% 50%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217 32% 15%;
+        --input: 217 32% 15%;
+        --ring: 189 94% 55%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+/* Gradient text utility */
+.gradient-text {
+    background: linear-gradient(135deg, #22d3ee 0%, #d946ef 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Subtle grain overlay */
+.grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(
+        rgba(255, 255, 255, 0.025) 1px,
+        transparent 1px
+    );
+    background-size: 3px 3px;
+    mix-blend-mode: overlay;
+    z-index: 0;
+}
+
+/* Ambient glow for header */
+.ambient-glow {
+    background:
+        radial-gradient(
+            ellipse 800px 300px at 20% -10%,
+            rgba(34, 211, 238, 0.15),
+            transparent 60%
+        ),
+        radial-gradient(
+            ellipse 700px 300px at 85% -10%,
+            rgba(217, 70, 239, 0.15),
+            transparent 60%
+        );
+}
+
+@keyframes pulse-sync {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.35);
+    }
+}
+.pulse-dot {
+    animation: pulse-sync 1.8s ease-in-out infinite;
+}
