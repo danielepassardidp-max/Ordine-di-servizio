@@ -13,6 +13,25 @@ const DAY_TITLES = {
     dopodomani: "Dopodomani",
 };
 
+const WEEKDAYS = [
+    "Domenica",
+    "Lunedì",
+    "Martedì",
+    "Mercoledì",
+    "Giovedì",
+    "Venerdì",
+    "Sabato",
+];
+
+function weekdayFromDate(dateStr) {
+    // dateStr format: DD-MM-YYYY
+    if (!dateStr) return "";
+    const [d, m, y] = dateStr.split("-").map((n) => parseInt(n, 10));
+    if (!d || !m || !y) return "";
+    const dt = new Date(y, m - 1, d);
+    return WEEKDAYS[dt.getDay()] || "";
+}
+
 const SECTION_ACCENTS = {
     A: "from-cyan-400/70 to-cyan-500/10",
     B: "from-fuchsia-400/70 to-fuchsia-500/10",
@@ -108,9 +127,12 @@ export default function DayColumn({ day, allDays, search, highlightCodes, active
                 <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-300/80">
                     {DAY_TITLES[day.label] || day.label}
                 </p>
-                <h2 className="font-mono text-lg font-bold text-white">
-                    {day.date_label || day.date || "—"}
+                <h2 className="text-xl font-bold leading-tight text-white">
+                    {weekdayFromDate(day.date) || "—"}
                 </h2>
+                <p className="mt-0.5 font-mono text-xs text-slate-400">
+                    {day.date || ""}
+                </p>
             </header>
 
             <div className="flex-1 space-y-4 overflow-y-auto p-4">

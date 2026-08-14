@@ -193,20 +193,37 @@ export default function App() {
                                     data-testid="mobile-tabs"
                                     className="mb-4 grid w-full grid-cols-3 rounded-xl border border-slate-800/80 bg-slate-900/60 p-1"
                                 >
-                                    {days.map((d) => (
-                                        <TabsTrigger
-                                            key={d.date}
-                                            value={d.label}
-                                            data-testid={`mobile-tab-${d.label}`}
-                                            className="rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/25 data-[state=active]:to-fuchsia-500/25 data-[state=active]:text-white"
-                                        >
-                                            {d.label === "oggi"
-                                                ? "Oggi"
-                                                : d.label === "domani"
-                                                  ? "Domani"
-                                                  : "Dopodomani"}
-                                        </TabsTrigger>
-                                    ))}
+                                    {days.map((d) => {
+                                        const [dd, mm, yy] = (d.date || "")
+                                            .split("-")
+                                            .map((n) => parseInt(n, 10));
+                                        const weekdays = [
+                                            "Dom",
+                                            "Lun",
+                                            "Mar",
+                                            "Mer",
+                                            "Gio",
+                                            "Ven",
+                                            "Sab",
+                                        ];
+                                        const dt =
+                                            dd && mm && yy
+                                                ? new Date(yy, mm - 1, dd)
+                                                : null;
+                                        const label = dt
+                                            ? weekdays[dt.getDay()]
+                                            : d.label;
+                                        return (
+                                            <TabsTrigger
+                                                key={d.date}
+                                                value={d.label}
+                                                data-testid={`mobile-tab-${d.label}`}
+                                                className="rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/25 data-[state=active]:to-fuchsia-500/25 data-[state=active]:text-white"
+                                            >
+                                                {label}
+                                            </TabsTrigger>
+                                        );
+                                    })}
                                 </TabsList>
                                 {days.map((day) => (
                                     <TabsContent
