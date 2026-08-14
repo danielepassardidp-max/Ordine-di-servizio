@@ -4,7 +4,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Toaster, toast } from "sonner";
 import Header from "@/components/Header";
 import DayColumn from "@/components/DayColumn";
-import { fetchDays, triggerSync } from "@/lib/api";
+import PersonnelDetailDialog from "@/components/PersonnelDetailDialog";
+import { fetchDays } from "@/lib/api";
 
 const POLL_INTERVAL_MS = 60_000; // frontend refresh every 60s
 
@@ -47,10 +48,15 @@ export default function App() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [syncing, setSyncing] = useState(false);
     const [search, setSearch] = useState("");
-    const [filter, setFilter] = useState("all");
     const [mobileTab, setMobileTab] = useState("oggi");
+    const [activeCode, setActiveCode] = useState(null);
+    const [dialogInfo, setDialogInfo] = useState(null);
+
+    const openDetails = useCallback((info) => setDialogInfo(info), []);
+    const closeDialog = useCallback((open) => {
+        if (!open) setDialogInfo(null);
+    }, []);
 
     const loadData = useCallback(async (silent = false) => {
         try {
@@ -72,19 +78,6 @@ export default function App() {
         return () => clearInterval(t);
     }, [loadData]);
 
-    const onSync = useCallback(async () => {
-        try {
-            setSyncing(true);
-            await triggerSync();
-            toast.success("Sincronizzazione completata");
-            await loadData(true);
-        } catch (e) {
-            toast.error("Sincronizzazione fallita");
-        } finally {
-            setSyncing(false);
-        }
-    }, [loadData]);
-
     const days = data?.days || [];
     const sync = data?.sync;
 
@@ -92,6 +85,42 @@ export default function App() {
         () => extractHighlightCodes(days, search),
         [days, search],
     );
+
+    // Auto-open dialog when search is a pure number that exactly matches a personnel code.
+    useEffect(() => {
+        const q = (search || "").trim();
+        if (!q || !/^\d+$/.test(q)) return;
+        // find first occurrence of exact code across days
+        let found = null;
+        for (const day of days) {
+            const scan = (list) => {
+                for (const p of list) {
+                    if (p.code === q) return p;
+                }
+                return null;
+            };
+            for (const section of day.sections || []) {
+                for (const zone of section.zones || []) {
+                    const hit = scan(zone.personnel || []);
+                    if (hit) {
+                        found = hit;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (!found) {
+                found =
+                    scan(day.absent?.assenti || []) ||
+                    scan(day.absent?.riposo || []);
+            }
+            if (found) break;
+        }
+        if (found) {
+            setDialogInfo({ code: found.code, name: found.name });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [search]);
 
     return (
         <div className="App relative min-h-screen bg-slate-950">
@@ -109,11 +138,6 @@ export default function App() {
             <Header
                 search={search}
                 onSearchChange={setSearch}
-                filter={filter}
-                onFilterChange={setFilter}
-                sync={sync}
-                onSync={onSync}
-                syncing={syncing}
                 matchesCount={search ? highlightCodes.size : undefined}
             />
 
@@ -150,9 +174,11 @@ export default function App() {
                                     key={day.date}
                                     day={day}
                                     allDays={days}
-                                    filter={filter}
                                     search={search}
                                     highlightCodes={highlightCodes}
+                                    activeCode={activeCode}
+                                    onActivate={setActiveCode}
+                                    onOpenDetails={openDetails}
                                 />
                             ))}
                         </div>
@@ -191,9 +217,11 @@ export default function App() {
                                         <DayColumn
                                             day={day}
                                             allDays={days}
-                                            filter={filter}
                                             search={search}
                                             highlightCodes={highlightCodes}
+                                            activeCode={activeCode}
+                                            onActivate={setActiveCode}
+                                            onOpenDetails={openDetails}
                                         />
                                     </TabsContent>
                                 ))}
@@ -213,6 +241,13 @@ export default function App() {
                     </>
                 )}
             </main>
+
+            <PersonnelDetailDialog
+                open={!!dialogInfo}
+                onOpenChange={closeDialog}
+                info={dialogInfo}
+                days={days}
+            />
         </div>
     );
 }

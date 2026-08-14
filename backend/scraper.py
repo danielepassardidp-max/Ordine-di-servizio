@@ -35,7 +35,9 @@ def _split_numbers(raw: str) -> List[str]:
     while i < len(digits):
         chunk = digits[i:i + 3]
         if len(chunk) == 3:
-            chunks.append(chunk)
+            # Strip leading zeros (039 -> "39", 007 -> "7"). Keep at least "0".
+            normalized = chunk.lstrip("0") or "0"
+            chunks.append(normalized)
         i += 3
     return chunks
 
